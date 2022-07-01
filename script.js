@@ -106,8 +106,9 @@ createNicknames(accounts);
 //   .map(word => word[0])
 //   .join('');
 
-const displayBalance = function (transactions) {
-  const balance = transactions.reduce((acc, trans) => acc + trans, 0);
+const displayBalance = function (account) {
+  const balance = account.transactions.reduce((acc, trans) => acc + trans, 0);
+  account.balance = balance;
   labelBalance.textContent = `${balance}$`;
 };
 
@@ -135,6 +136,15 @@ const displayTotal = function (account) {
 
 /////////////////////////////////////////
 
+const updateUi = function (account) {
+  // Display transactions
+  dispayTransactions(account.transactions);
+  // Display balance
+  displayBalance(account);
+  // Display total
+  displayTotal(account);
+};
+
 let currentAccount;
 
 btnLogin.addEventListener('click', function (e) {
@@ -156,11 +166,28 @@ btnLogin.addEventListener('click', function (e) {
     inputLoginUsername.value = '';
     inputLoginPin.value = '';
     inputLoginPin.blur();
-    // Display transactions
-    dispayTransactions(currentAccount.transactions);
-    // Display balance
-    displayBalance(currentAccount.transactions);
-    // Display total
-    displayTotal(currentAccount);
+
+    updateUi(currentAccount);
+  }
+});
+
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+  const TransferAmount = Number(inputTransferAmount.value);
+  const recipientNickname = inputTransferTo.value;
+  const recipientAccount = accounts.find(
+    account => account.nickname === recipientNickname
+  );
+  inputTransferTo.value = '';
+  inputTransferAmount.value = '';
+  if (
+    TransferAmount > 0 &&
+    currentAccount.balance >= TransferAmount &&
+    recipientAccount &&
+    currentAccount.nickname !== recipientAccount.nickname
+  ) {
+    currentAccount.transactions.push(-TransferAmount);
+    recipientAccount.transactions.push(TransferAmount);
+    updateUi(currentAccount);
   }
 });
