@@ -170,7 +170,7 @@ btnLogin.addEventListener('click', function (e) {
     updateUi(currentAccount);
   }
 });
-
+////////////////////////////////////////////////
 btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
   const TransferAmount = Number(inputTransferAmount.value);
