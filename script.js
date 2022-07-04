@@ -211,3 +211,17 @@ btnClose.addEventListener('click', function (e) {
   inputCloseNickname.value = '';
   inputClosePin.value = '';
 });
+
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+  const laonAmount = Number(inputLoanAmount.value);
+
+  if (
+    laonAmount > 0 &&
+    currentAccount.transactions.some(trans => trans >= (laonAmount * 10) / 100)
+  ) {
+    currentAccount.transactions.push(laonAmount);
+    updateUi(currentAccount);
+  }
+  inputLoanAmount.value = '';
+});
