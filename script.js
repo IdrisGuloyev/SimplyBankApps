@@ -4,7 +4,7 @@
 
 const account1 = {
   userName: 'Cecil Ireland',
-  transactions: [500, 250, -300, 5000, -850, -110, -170, 1100],
+  transactions: [500.32, 250, -300.92, 5000, -850, -110.18, -170, 1100],
   interest: 1.5,
   pin: 1111,
 };
@@ -83,7 +83,7 @@ const dispayTransactions = function (transactions, sort = false) {
     <div class="transactions__type transactions__type--${transType}">
       ${index + 1} ${transType}
     </div>
-    <div class="transactions__value">${trans}</div>
+    <div class="transactions__value">${trans.toFixed(2)}</div>
   </div>
     `;
     containerTransactions.insertAdjacentHTML('afterbegin', transactionRow);
@@ -113,7 +113,7 @@ createNicknames(accounts);
 const displayBalance = function (account) {
   const balance = account.transactions.reduce((acc, trans) => acc + trans, 0);
   account.balance = balance;
-  labelBalance.textContent = `${balance}$`;
+  labelBalance.textContent = `${balance.toFixed(2)}$`;
 };
 
 /////////////////////////////////////////////////
@@ -121,12 +121,12 @@ const displayTotal = function (account) {
   const depositesTotal = account.transactions
     .filter(trans => trans > 0)
     .reduce((acc, trans) => acc + trans, 0);
-  labelSumIn.textContent = `${depositesTotal}$`;
+  labelSumIn.textContent = `${depositesTotal.toFixed(2)}$`;
 
   const withdrawalsTotal = account.transactions
     .filter(trans => trans < 0)
     .reduce((acc, trans) => acc + trans, 0);
-  labelSumOut.textContent = `${withdrawalsTotal}$`;
+  labelSumOut.textContent = `${withdrawalsTotal.toFixed(2)}$`;
 
   const interestTotal = account.transactions
     .filter(trans => trans > 0)
@@ -135,7 +135,7 @@ const displayTotal = function (account) {
       return interest >= 5;
     })
     .reduce((acc, interest) => acc + interest, 0);
-  labelSumInterest.textContent = `${interestTotal}$`;
+  labelSumInterest.textContent = `${interestTotal.toFixed(2)}$`;
 };
 
 /////////////////////////////////////////
@@ -159,7 +159,7 @@ btnLogin.addEventListener('click', function (e) {
   );
   console.log(currentAccount);
 
-  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+  if (currentAccount?.pin === +(inputLoginPin.value)) {
     // Display UI and welcome message
     containerApp.style.opacity = 100;
 
@@ -178,7 +178,7 @@ btnLogin.addEventListener('click', function (e) {
 ////////////////////////////////////////////////
 btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
-  const TransferAmount = Number(inputTransferAmount.value);
+  const TransferAmount = +(inputTransferAmount.value);
   const recipientNickname = inputTransferTo.value;
   const recipientAccount = accounts.find(
     account => account.nickname === recipientNickname
@@ -201,7 +201,7 @@ btnClose.addEventListener('click', function (e) {
   e.preventDefault();
   if (
     inputCloseNickname.value === currentAccount.nickname &&
-    Number(inputClosePin.value) === currentAccount.pin
+    +(inputClosePin.value) === currentAccount.pin
   ) {
     const currentAccountIndex = accounts.findIndex(
       account => account.nickname === currentAccount.nickname
@@ -218,7 +218,7 @@ btnClose.addEventListener('click', function (e) {
 
 btnLoan.addEventListener('click', function (e) {
   e.preventDefault();
-  const laonAmount = Number(inputLoanAmount.value);
+  const laonAmount = Math.floor(inputLoanAmount.value);
 
   if (
     laonAmount > 0 &&
@@ -237,3 +237,4 @@ btnSort.addEventListener('click', function (e) {
   dispayTransactions(currentAccount.transactions, !TransactionsSorted);
   TransactionsSorted = !TransactionsSorted;
 });
+
