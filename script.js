@@ -123,7 +123,7 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 ////////////////////////////////////////
 
-const formatTransactionDate = function (date) {
+const formatTransactionDate = function (date, locale) {
   const getDatsBEtween2Dates = (date1, date2) =>
     Math.round(Math.abs(date1 - date2) / (1000 * 60 * 60 * 24));
 
@@ -133,11 +133,12 @@ const formatTransactionDate = function (date) {
   if (daysPassed === 1) return 'Вчера';
   if (daysPassed <= 5) return `${daysPassed} дня назад`;
   else {
-    const day = `${date.getDate()}`.padStart(2, '0');
-    const month = `${date.getMonth() + 1}`.padStart(2, '0');
-    const year = date.getFullYear();
-  
-    return `${day}/${month}/${year}`;
+    // const day = `${date.getDate()}`.padStart(2, '0');
+    // const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    // const year = date.getFullYear();
+
+    // return `${day}/${month}/${year}`;
+    return new Intl.DateTimeFormat(locale).format(date);
   }
 };
 
@@ -151,7 +152,7 @@ const dispayTransactions = function (account, sort = false) {
   transacs.forEach(function (trans, index) {
     const transType = trans > 0 ? 'deposit' : 'withdrawal';
     const date = new Date(account.transactionsDates[index]);
-    const transDate = formatTransactionDate(date);
+    const transDate = formatTransactionDate(date, account.locale);
 
     const transactionRow = `
     <div class="transactions__row">
@@ -230,11 +231,10 @@ let currentAccount;
 
 //Always logged in
 currentAccount = account1;
-// updateUi(currentAccount);
-// containerApp.style.opacity = 199;
+updateUi(currentAccount);
+containerApp.style.opacity = 100;
 
-// labelDate.textContent = `${day}/${month}/${year}`;
-
+// Event Handlers
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
   currentAccount = accounts.find(
@@ -250,10 +250,27 @@ btnLogin.addEventListener('click', function (e) {
       currentAccount.userName.split(' ')[0]
     }!`;
 
-    const date = new Date();
-    const day = `${date.getDate()}`.padStart(2, '0');
-    const month = `${date.getMonth() + 1}`.padStart(2, '0');
-    const year = date.getFullYear();
+    // const date = new Date();
+    // const day = `${date.getDate()}`.padStart(2, '0');
+    // const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    // const year = date.getFullYear();
+
+    // labelDate.textContent = `${day}/${month}/${year}`;
+
+    const now = new Date();
+    const options = {
+      hour: 'numeric',
+      minute: 'numeric',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      weekday: 'long',
+    };
+    // const locale = navigator.language;
+    labelDate.textContent = new Intl.DateTimeFormat(
+      currentAccount.locale,
+      options
+    ).format(now);
 
     // CLear inputs
     inputLoginUsername.value = '';
