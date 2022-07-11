@@ -14,8 +14,8 @@ const account1 = {
     '2021-01-22T12:17:46.255Z',
     '2021-02-12T15:14:06.486Z',
     '2021-03-09T11:42:26.371Z',
-    '2021-05-21T07:43:59.331Z',
-    '2021-06-22T15:21:20.814Z',
+    '2022-07-08T07:43:59.331Z',
+    '2022-07-10T15:21:20.814Z',
   ],
   currency: 'USD',
   locale: 'en-US',
@@ -122,6 +122,25 @@ const inputClosePin = document.querySelector('.form__input--pin');
 ////////////////////////   FOR EACH
 
 ////////////////////////////////////////
+
+const formatTransactionDate = function (date) {
+  const getDatsBEtween2Dates = (date1, date2) =>
+    Math.round(Math.abs(date1 - date2) / (1000 * 60 * 60 * 24));
+
+  const daysPassed = getDatsBEtween2Dates(new Date(), date);
+
+  if (daysPassed === 0) return 'Сегодня';
+  if (daysPassed === 1) return 'Вчера';
+  if (daysPassed <= 5) return `${daysPassed} дня назад`;
+  else {
+    const day = `${date.getDate()}`.padStart(2, '0');
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const year = date.getFullYear();
+  
+    return `${day}/${month}/${year}`;
+  }
+};
+
 const dispayTransactions = function (account, sort = false) {
   containerTransactions.innerHTML = '';
 
@@ -131,13 +150,8 @@ const dispayTransactions = function (account, sort = false) {
 
   transacs.forEach(function (trans, index) {
     const transType = trans > 0 ? 'deposit' : 'withdrawal';
-
     const date = new Date(account.transactionsDates[index]);
-    const day = `${date.getDate()}`.padStart(2, '0');
-    const month = `${date.getMonth() + 1}`.padStart(2, '0');
-    const year = date.getFullYear();
-
-    const transDate = `${day}/${month}/${year}`;
+    const transDate = formatTransactionDate(date);
 
     const transactionRow = `
     <div class="transactions__row">
@@ -240,6 +254,7 @@ btnLogin.addEventListener('click', function (e) {
     const day = `${date.getDate()}`.padStart(2, '0');
     const month = `${date.getMonth() + 1}`.padStart(2, '0');
     const year = date.getFullYear();
+
     // CLear inputs
     inputLoginUsername.value = '';
     inputLoginPin.value = '';
