@@ -218,7 +218,8 @@ const displayTotal = function (account) {
   labelSumIn.textContent = formatCurrency(
     depositesTotal,
     account.locale,
-    account.currency);
+    account.currency
+  );
 
   const withdrawalsTotal = account.transactions
     .filter(trans => trans < 0)
@@ -226,7 +227,8 @@ const displayTotal = function (account) {
   labelSumOut.textContent = formatCurrency(
     withdrawalsTotal,
     account.locale,
-    account.currency);
+    account.currency
+  );
 
   const interestTotal = account.transactions
     .filter(trans => trans > 0)
@@ -238,7 +240,8 @@ const displayTotal = function (account) {
   labelSumInterest.textContent = formatCurrency(
     interestTotal,
     account.locale,
-    account.currency);
+    account.currency
+  );
 };
 
 /////////////////////////////////////////
@@ -253,12 +256,37 @@ const updateUi = function (account) {
 };
 
 // Event handlers
-let currentAccount;
+let currentAccount, currentLogOutTimer;
 
 //Always logged in
-currentAccount = account1;
-updateUi(currentAccount);
-containerApp.style.opacity = 100;
+// currentAccount = account1;
+// updateUi(currentAccount);
+// containerApp.style.opacity = 100;
+
+const startLogoutTimer = function () {
+  const logOutTimerCallback = function () {
+    const minutes = String(Math.trunc(time / 60)).padStart(2, '0');
+    const seconds = String(time % 60).padStart(2, '0');
+    //В каждом вызове показывать оставшееся время в UI
+    labelTimer.textContent = `${minutes}:${seconds}`;
+
+    //После истечения времени остановить таймер и выйти из приложения
+    if (time === 0) {
+      clearInterval(logOutTimer);
+      containerApp.style.opacity = 0;
+
+      labelWelcome.textContent = 'Войдите в свой аккаунт';
+    }
+    time--;
+  };
+  //Установить время выхода через 5 мин
+  let time = 300;
+  //Вызов таймера каждую секунду
+  logOutTimerCallback();
+  const logOutTimer = setInterval(logOutTimerCallback, 1000);
+
+  return logOutTimer;
+};
 
 // Event Handlers
 btnLogin.addEventListener('click', function (e) {
@@ -303,6 +331,9 @@ btnLogin.addEventListener('click', function (e) {
     inputLoginPin.value = '';
     inputLoginPin.blur();
 
+    // Check if the timer exists
+    if (currentLogOutTimer) clearInterval(currentLogOutTimer);
+    currentLogOutTimer = startLogoutTimer();
     updateUi(currentAccount);
   }
 });
@@ -322,14 +353,18 @@ btnTransfer.addEventListener('click', function (e) {
     recipientAccount &&
     currentAccount.nickname !== recipientAccount.nickname
   ) {
+    //Add transaction date
+    currentAccount.transactionsDates.push(new Date().toISOString());
+    recipientAccount.transactionsDates.push(new Date().toISOString());
+
     //Add transaction
     currentAccount.transactions.push(-TransferAmount);
     recipientAccount.transactions.push(TransferAmount);
     updateUi(currentAccount);
 
-    //Add transaction date
-    currentAccount.transactionsDates.push(new Date().toISOString());
-    recipientAccount.transactionsDates.push(new Date().toISOString());
+    // Reset the timer
+    clearInterval(currentLogOutTimer);
+    currentLogOutTimer = startLogoutTimer();
   }
 });
 
@@ -360,10 +395,16 @@ btnLoan.addEventListener('click', function (e) {
     laonAmount > 0 &&
     currentAccount.transactions.some(trans => trans >= (laonAmount * 10) / 100)
   ) {
-    currentAccount.transactions.push(laonAmount);
-    currentAccount.transactionsDates.push(new Date().toISOString());
-    updateUi(currentAccount);
+    setTimeout(function () {
+      currentAccount.transactions.push(laonAmount);
+      currentAccount.transactionsDates.push(new Date().toISOString());
+      updateUi(currentAccount);
+    }, 5000);
   }
+  inputLoanAmount.value = '';
+  // Reset the timer
+  clearInterval(currentLogOutTimer);
+  currentLogOutTimer = startLogoutTimer();
 });
 
 let TransactionsSorted = false;
